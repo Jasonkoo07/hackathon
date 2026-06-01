@@ -1,12 +1,15 @@
 import json
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_COURSE_PATH = os.path.join(BASE_DIR, "data", "course_data.json")
+
 # Mapping for Korean day names to English abbreviations used in analysis
 DAY_MAP = {
     "월": "Mon", "화": "Tue", "수": "Wed", "목": "Thu", "금": "Fri", "토": "Sat", "일": "Sun"
 }
 
-def read_courses(file_path='data/course_data.json'):
+def read_courses(file_path=DEFAULT_COURSE_PATH):
     """
     Reads course data from a JSON file.
     Returns a list of course dictionaries or None if an error occurs.
@@ -118,6 +121,61 @@ def print_timetable(timetable):
             print(f"  {'':<15} | Location: {location} | Prof: {course['professor']}")
     
     print("\n" + "="*70 + "\n")
+
+def check_exam_conflicts(courses_id_list):
+    """
+    Checks whether selected courses have exam time conflicts.
+    Returns a list of conflict warning messages.
+    """
+    all_courses = read_courses()
+    if not all_courses:
+        return []
+
+    exam_table = {}
+    conflicts = []
+
+    for cid in courses_id_list:
+        if cid not in all_courses:
+            continue
+
+        course = all_courses[cid]
+        exam_key = f"{course.get('exam_date', '')} {course.get('exam_time', '')}".strip()
+
+        if not exam_key:
+            continue
+
+        if exam_key not in exam_table:
+            exam_table[exam_key] = []
+
+        exam_table[exam_key].append(course)
+
+    for exam_time, courses in exam_table.items():
+        if len(courses) >= 2:
+            course_names = [course["name"] for course in courses]
+            conflicts.append({
+                "exam_time": exam_time,
+                "courses": course_names,
+                "message": f"🚨 시험 시간 충돌: {exam_time} / {', '.join(course_names)}"
+            })
+
+    return conflicts
+
+
+def print_exam_conflicts(conflicts):
+    """
+    Prints exam conflict results.
+    """
+    print("\n" + "=" * 70)
+    print(f"{'📝 EXAM CONFLICT CHECK':^70}")
+    print("=" * 70)
+
+    if not conflicts:
+        print("✅ 시험 시간이 겹치는 과목이 없습니다.")
+    else:
+        for conflict in conflicts:
+            print(conflict["message"])
+
+    print("=" * 70 + "\n")
 
 if __name__ == "__main__":
     # Example usage for testing purposes
