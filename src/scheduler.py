@@ -1,7 +1,8 @@
 import json
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(SRC_DIR)
 DEFAULT_COURSE_PATH = os.path.join(BASE_DIR, "data", "course_data.json")
 
 # Mapping for Korean day names to English abbreviations used in analysis
