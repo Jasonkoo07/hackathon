@@ -1,0 +1,69 @@
+<!--I've put in any function arbitrarily for HTML connection testing.-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sum of Two Numbers</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    label, button { display: block; margin-top: 16px; }
+    input, textarea { width: 100%; padding: 8px; font-size: 16px; }
+    #result { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Calculate the Sum of Two Numbers</h1>
+  <p>Enter two numbers in separate fields.</p>
+
+  <label for="number1">First number:</label>
+  <input id="number1" type="text" placeholder="Example: 3" />
+
+  <label for="number2">Second number:</label>
+  <input id="number2" type="text" placeholder="Example: 7" />
+
+  <button id="calcButton">Calculate Sum</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function calculateSum() {
+      const num1 = document.getElementById('number1').value.trim();
+      const num2 = document.getElementById('number2').value.trim();
+      const resultEl = document.getElementById('result');
+
+      if (!num1 || !num2) {
+        resultEl.textContent = 'Please enter both numbers.';
+        return;
+      }
+
+      const number1 = Number(num1);
+      const number2 = Number(num2);
+
+      if (Number.isNaN(number1) || Number.isNaN(number2)) {
+        resultEl.textContent = 'Please enter only valid numbers.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ number1, number2 })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+        } else {
+          resultEl.textContent = `Sum: ${data.sum}`;
+        }
+      } catch (err) {
+        resultEl.textContent = 'Failed to communicate with the server.';
+      }
+    }
+
+    document.getElementById('calcButton').addEventListener('click', calculateSum);
+  </script>
+</body>
+</html>
