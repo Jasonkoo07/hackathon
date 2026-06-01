@@ -49,7 +49,6 @@ def analyze_api():
             "route_summary": get_route_summary_text(route_results),
             "exam_conflicts": exam_conflicts
         })
-        })
 
     except Exception as exc:
         return jsonify({
