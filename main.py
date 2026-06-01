@@ -8,7 +8,7 @@ SRC_DIR = os.path.join(BASE_DIR, "src")
 if SRC_DIR not in sys.path:
     sys.path.append(SRC_DIR)
 
-from scheduler import arrange_timetable, print_timetable
+from scheduler import arrange_timetable, print_timetable, check_exam_conflicts, print_exam_conflicts
 from router import analyze_routes, print_route_report, get_route_summary_text
 
 app = Flask(__name__)
@@ -40,11 +40,15 @@ def analyze_api():
             campus_map_path=os.path.join(BASE_DIR, "data", "campus_distance.json")
         )
 
+        exam_conflicts = check_exam_conflicts(selected_ids)
+
         return jsonify({
             "selected_courses": selected_ids,
             "timetable": timetable,
             "route_results": route_results,
-            "route_summary": get_route_summary_text(route_results)
+            "route_summary": get_route_summary_text(route_results),
+            "exam_conflicts": exam_conflicts
+        })
         })
 
     except Exception as exc:
@@ -71,12 +75,15 @@ def demo_api():
         campus_map_path=os.path.join(BASE_DIR, "data", "campus_distance.json")
     )
 
+    exam_conflicts = check_exam_conflicts(selected_ids)
+
     return jsonify({
-        "selected_courses": selected_ids,
-        "timetable": timetable,
-        "route_results": route_results,
-        "route_summary": get_route_summary_text(route_results)
-    })
+    "selected_courses": selected_ids,
+    "timetable": timetable,
+    "route_results": route_results,
+    "route_summary": get_route_summary_text(route_results),
+    "exam_conflicts": exam_conflicts
+})
 
 
 if __name__ == "__main__":
@@ -89,14 +96,15 @@ if __name__ == "__main__":
 
     timetable = arrange_timetable(selected_ids)
 
-    print("==================== 시간표 결과 ====================")
-    print_timetable(timetable)
-
+    print("==================== 시험 시간 충돌 확인 ====================")
+    exam_conflicts = check_exam_conflicts(selected_ids)
+    print_exam_conflicts(exam_conflicts)
+    
     print("==================== 이동 경로 분석 ====================")
     route_results = analyze_routes(
         timetable,
         campus_map_path=os.path.join(BASE_DIR, "data", "campus_distance.json")
     )
     print_route_report(route_results)
-
+    
     app.run(debug=True)
