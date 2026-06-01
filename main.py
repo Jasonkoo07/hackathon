@@ -1,6 +1,4 @@
-'''
-I've put any features in it for HTML connection testing.
-'''
+#I've put in any function arbitrarily for HTML connection testing.
 
 from flask import Flask, request, jsonify, send_file
 
